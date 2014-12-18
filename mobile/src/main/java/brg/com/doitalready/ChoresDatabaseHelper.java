@@ -77,7 +77,7 @@ public class ChoresDatabaseHelper extends SQLiteOpenHelper {
     private static HashMap<String, String> getChoresTableColumns() {
         HashMap<String, String> columns = new HashMap<>();
 
-        columns.put(BaseColumns._ID,       "INTEGER");
+        columns.put(BaseColumns._ID,       "INTEGER PRIMARY KEY AUTOINCREMENT");
         columns.put(COLUMN_NAME,           "TEXT");
         columns.put(COLUMN_DATE_CREATED,   "DATETIME DEFAULT CURRENT_TIMESTAMP");
         columns.put(COLUMN_DATE_COMPLETED, "DATETIME");

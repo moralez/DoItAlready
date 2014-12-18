@@ -45,7 +45,6 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
                 alert.setTitle("Add Something To Do");
-                alert.setMessage("Enter Task Name:");
 
                 // Set an EditText view to get user input
                 final EditText input = new EditText(MainActivity.this);
