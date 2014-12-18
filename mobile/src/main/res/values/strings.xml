@@ -4,5 +4,8 @@
     <string name="app_name">DoItAlready</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="add_chore_dialog_title">Add Something To Do</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
 
 </resources>

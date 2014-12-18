@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,23 +45,23 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                alert.setTitle("Add Something To Do");
+                LayoutInflater inflater = getLayoutInflater();
 
-                // Set an EditText view to get user input
-                final EditText input = new EditText(MainActivity.this);
-                alert.setView(input);
+                alert.setTitle(getString(R.string.add_chore_dialog_title));
 
-                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                // Set custom view for dialog
+                alert.setView(inflater.inflate(R.layout.dialog_new_chore, null));
+
+                alert.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        String value = input.getText().toString();
+                        String value = ((EditText)findViewById(R.id.chore)).getText().toString();
                         Log.d("JMO", "Name: " + value);
                         Chore chore = datasource.createChore(value);
                         ((ArrayAdapter<Chore>)listView.getAdapter()).add(chore);
-                        return;
                     }
                 });
 
-                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                alert.setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int which) {
                         // TODO Auto-generated method stub
