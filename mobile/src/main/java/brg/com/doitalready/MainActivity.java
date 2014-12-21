@@ -2,13 +2,17 @@ package brg.com.doitalready;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -20,28 +24,40 @@ import brg.com.doitalready.model.Chore;
 
 public class MainActivity extends Activity {
 
-    private ChoresDataSource datasource;
-    private ImageButton fab;
+    private ChoresDataSource mDatasource;
+    private ImageButton      mFab;
 
-    ListView listView;
+    private ListView listView;
+
+    private RecyclerView               mRecyclerView;
+    private ChoreRecyclerViewAdapter   mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView = (ListView)findViewById(R.id.listView);
-        fab = (ImageButton)findViewById(R.id.fab);
+        listView      = (ListView)findViewById(R.id.listView);
+        mFab          = (ImageButton)findViewById(R.id.fab);
+        mRecyclerView = (RecyclerView)findViewById(R.id.my_recycler_view);
 
-        datasource = new ChoresDataSource(this);
-        datasource.open();
+        mDatasource = new ChoresDataSource(this);
+        mDatasource.open();
 
-        List<Chore> chores = datasource.getAllChores();
+        List<Chore> chores = mDatasource.getAllChores();
 
         ArrayAdapter<Chore> adapter = new ArrayAdapter<Chore>(this, android.R.layout.simple_list_item_1, chores);
         listView.setAdapter(adapter);
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new ChoreRecyclerViewAdapter(chores);
+        mRecyclerView.setAdapter(mAdapter);
+
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
@@ -55,14 +71,12 @@ public class MainActivity extends Activity {
                 alert.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String value = ((EditText)findViewById(R.id.chore)).getText().toString();
-                        Log.d("JMO", "Name: " + value);
-                        Chore chore = datasource.createChore(value);
+                        Chore chore = mDatasource.createChore(value);
                         ((ArrayAdapter<Chore>)listView.getAdapter()).add(chore);
                     }
                 });
 
                 alert.setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
-
                     public void onClick(DialogInterface dialog, int which) {
                         // TODO Auto-generated method stub
                         return;
@@ -98,13 +112,20 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onResume() {
-        datasource.open();
+        mDatasource.open();
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-        datasource.close();
+        mDatasource.close();
         super.onPause();
+    }
+
+    private class ChoreAdapter extends ArrayAdapter<Chore> {
+
+        public ChoreAdapter(Context context, int resource, int textViewResourceId, List<Chore> objects) {
+            super(context, resource, textViewResourceId, objects);
+        }
     }
 }
