@@ -27,8 +27,6 @@ public class MainActivity extends Activity {
     private ChoresDataSource mDatasource;
     private ImageButton      mFab;
 
-    private ListView listView;
-
     private RecyclerView               mRecyclerView;
     private ChoreRecyclerViewAdapter   mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -38,7 +36,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView      = (ListView)findViewById(R.id.listView);
         mFab          = (ImageButton)findViewById(R.id.fab);
         mRecyclerView = (RecyclerView)findViewById(R.id.my_recycler_view);
 
@@ -47,10 +44,8 @@ public class MainActivity extends Activity {
 
         List<Chore> chores = mDatasource.getAllChores();
 
-        ArrayAdapter<Chore> adapter = new ArrayAdapter<Chore>(this, android.R.layout.simple_list_item_1, chores);
-        listView.setAdapter(adapter);
-
         mRecyclerView.setHasFixedSize(true);
+
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
@@ -66,13 +61,18 @@ public class MainActivity extends Activity {
                 alert.setTitle(getString(R.string.add_chore_dialog_title));
 
                 // Set custom view for dialog
-                alert.setView(inflater.inflate(R.layout.dialog_new_chore, null));
+                final View dialogView = inflater.inflate(R.layout.dialog_new_chore, null);
+                alert.setView(dialogView);
 
                 alert.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        String value = ((EditText)findViewById(R.id.chore)).getText().toString();
-                        Chore chore = mDatasource.createChore(value);
-                        ((ArrayAdapter<Chore>)listView.getAdapter()).add(chore);
+                        EditText editText = (EditText)dialogView.findViewById(R.id.chore);
+                        if (editText != null) {
+                            String value = editText.getText().toString();
+                            Chore chore = mDatasource.createChore(value);
+//                            ((ArrayAdapter<Chore>)listView.getAdapter()).add(chore);
+                            mAdapter.addItem(chore);
+                        }
                     }
                 });
 

@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -20,11 +21,11 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public RelativeLayout mListItem;
-        public TextView       mChoreName;
-        public ImageView      mChoreCategoryIcon;
+        public LinearLayout mListItem;
+        public TextView     mChoreName;
+        public ImageView    mChoreCategoryIcon;
 
-        public ViewHolder(RelativeLayout choreListItemLayout) {
+        public ViewHolder(LinearLayout choreListItemLayout) {
             super(choreListItemLayout);
             mListItem          = choreListItemLayout;
             mChoreName         = (TextView)choreListItemLayout.findViewById(R.id.choreName_card);
@@ -39,7 +40,7 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
     @Override
     public ChoreRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        RelativeLayout v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.chore_card_item, parent, false);
+        LinearLayout v = (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.chore_card_item, parent, false);
         // set the view's size, margins, paddings and layout parameters
         // ...
         ViewHolder vh = new ViewHolder(v);
@@ -59,4 +60,10 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
     public int getItemCount() {
         return mChoreSet.size();
     }
+
+    public void addItem(Chore chore) {
+        mChoreSet.add(chore);
+        notifyItemInserted(getItemCount()-1);
+    }
+
 }

@@ -12,7 +12,8 @@
         android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        card_view:cardCornerRadius="4dp">
+        card_view:cardCornerRadius="4dp"
+        card_view:cardElevation="4dp">
 
         <TextView
             android:id="@+id/choreName_card"
