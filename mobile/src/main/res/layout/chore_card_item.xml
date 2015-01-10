@@ -1,14 +1,35 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:padding="10dp">
 
-    <!-- A CardView that contains a TextView -->
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/card_view"
+        android:id="@+id/card_view_back"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        card_view:cardCornerRadius="4dp"
+        card_view:cardElevation="4dp"
+        card_view:cardBackgroundColor="@android:color/black"
+        android:visibility="invisible">
+
+        <TextView
+            android:id="@+id/messages"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:background="@android:color/holo_red_dark"
+            android:text="BLAH!!!"/>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view_front"
         android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,7 +39,13 @@
         <TextView
             android:id="@+id/choreName_card"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:textColor="@android:color/black"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@android:drawable/ic_menu_camera"/>
     </android.support.v7.widget.CardView>
 
-</LinearLayout>
+</RelativeLayout>
