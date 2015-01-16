@@ -7,4 +7,11 @@
     <dimen name="fab_margin">8dp</dimen>
     <dimen name="fab_elevation">8dp</dimen>
     <dimen name="fab_press_translation_z">9dp</dimen>
+
+    <dimen name="card_view_button_margin">40dp</dimen>
+    <dimen name="card_view_corner_radius">4dp</dimen>
+    <dimen name="card_view_padding">10dp</dimen>
+    <dimen name="card_view_height">100dp</dimen>
+    <dimen name="card_view_category_icon_margin">5dp</dimen>
+
 </resources>

@@ -8,4 +8,7 @@
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
 
+    <string name="card_view_delete">Delete</string>
+    <string name="card_view_edit">Edit</string>
+
 </resources>
