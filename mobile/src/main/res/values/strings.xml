@@ -11,4 +11,9 @@
     <string name="card_view_delete">Delete</string>
     <string name="card_view_edit">Edit</string>
 
+    <string-array name="main_navigation_options">
+        <item>Test</item>
+        <item>Settings</item>
+    </string-array>
+
 </resources>

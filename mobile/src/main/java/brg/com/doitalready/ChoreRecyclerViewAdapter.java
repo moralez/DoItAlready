@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,18 +39,36 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
 
         private CardView mCardFront;
         private CardView mCardBack;
+        private LinearLayout mDeleteBtn;
+        private LinearLayout mEditBtn;
 
         public ViewHolder(RelativeLayout choreListItemLayout) {
             super(choreListItemLayout);
-            mListItem          = choreListItemLayout;
-            mChoreName         = (TextView)choreListItemLayout.findViewById(R.id.choreName_card);
-            mCardFront         = (CardView)choreListItemLayout.findViewById(R.id.card_view_front);
-            mCardBack          = (CardView)choreListItemLayout.findViewById(R.id.card_view_back);
+            mListItem  = choreListItemLayout;
+            mChoreName = (TextView)choreListItemLayout.findViewById(R.id.chore_name_card);
+            mCardFront = (CardView)choreListItemLayout.findViewById(R.id.card_view_front);
+            mCardBack  = (CardView)choreListItemLayout.findViewById(R.id.card_view_back);
+            mDeleteBtn = (LinearLayout)mCardBack.findViewById(R.id.delete_btn);
+
             choreListItemLayout.setOnClickListener(this);
+            mDeleteBtn.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.chore_list_item:
+                    onListItemClick();
+                    break;
+                case R.id.delete_btn:
+                    onDeleteBtnClick();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void onListItemClick() {
             final CardView start;
             final CardView end;
             if (mCardFront.getVisibility() == View.VISIBLE) {
@@ -81,6 +100,10 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
                 public void onAnimationRepeat(Animator animator) {}
             });
             flip.start();
+        }
+
+        private void onDeleteBtnClick() {
+            Log.i("JMO", "Delete Button Pressed");
         }
     }
 

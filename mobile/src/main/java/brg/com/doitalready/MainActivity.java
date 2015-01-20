@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,7 +13,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -31,6 +33,8 @@ public class MainActivity extends Activity {
     private ChoreRecyclerViewAdapter   mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private ListView mDrawerList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +42,7 @@ public class MainActivity extends Activity {
 
         mFab          = (ImageButton)findViewById(R.id.fab);
         mRecyclerView = (RecyclerView)findViewById(R.id.my_recycler_view);
+        mDrawerList   = (ListView)findViewById(R.id.navigation_drawer);
 
         mDatasource = new ChoresDataSource(this);
         mDatasource.open();
@@ -70,7 +75,6 @@ public class MainActivity extends Activity {
                         if (editText != null) {
                             String value = editText.getText().toString();
                             Chore chore = mDatasource.createChore(value);
-//                            ((ArrayAdapter<Chore>)listView.getAdapter()).add(chore);
                             mAdapter.addItem(chore);
                         }
                     }
@@ -82,7 +86,21 @@ public class MainActivity extends Activity {
                         return;
                     }
                 });
+
                 alert.show();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            }
+        });
+
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                                                        getResources().getStringArray(R.array.main_navigation_options)));
+        // Set the list's click listener
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.i("JMO", "Selected Position: " + position);
             }
         });
     }
