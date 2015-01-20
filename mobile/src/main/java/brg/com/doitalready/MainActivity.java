@@ -1,15 +1,13 @@
 package brg.com.doitalready;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -60,34 +59,49 @@ public class MainActivity extends Activity {
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                LayoutInflater inflater = getLayoutInflater();
 
-                alert.setTitle(getString(R.string.add_chore_dialog_title));
-
-                // Set custom view for dialog
-                final View dialogView = inflater.inflate(R.layout.dialog_new_chore, null);
-                alert.setView(dialogView);
-
-                alert.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        EditText editText = (EditText)dialogView.findViewById(R.id.chore);
+                final Dialog choreEntryDialog = new Dialog(MainActivity.this);
+                choreEntryDialog.setContentView(R.layout.dialog_new_chore);
+                choreEntryDialog.setTitle(getString(R.string.add_chore_dialog_title));
+                choreEntryDialog.setCancelable(true);
+                choreEntryDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    }
+                });
+                choreEntryDialog.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                        choreEntryDialog.dismiss();
+                    }
+                });
+                choreEntryDialog.findViewById(R.id.positive_button).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        EditText editText = (EditText) choreEntryDialog.findViewById(R.id.chore);
                         if (editText != null) {
                             String value = editText.getText().toString();
-                            Chore chore = mDatasource.createChore(value);
-                            mAdapter.addItem(chore);
+                            if (value.isEmpty()) {
+                                Toast.makeText(v.getContext(), v.getContext().getResources().getString(R.string.empty_chore_description_error),
+                                        Toast.LENGTH_LONG).show();
+                            } else {
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
+                                Chore chore = mDatasource.createChore(value);
+                                mAdapter.addItem(chore);
+
+                                choreEntryDialog.dismiss();
+                            }
                         }
                     }
                 });
+                choreEntryDialog.show();
 
-                alert.setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // TODO Auto-generated method stub
-                        return;
-                    }
-                });
-
-                alert.show();
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
             }
