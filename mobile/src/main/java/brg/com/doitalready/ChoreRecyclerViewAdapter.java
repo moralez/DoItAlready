@@ -3,8 +3,11 @@ package brg.com.doitalready;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -31,16 +36,61 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
 
     private List<Chore> mChoreSet;
 
+    public ChoreRecyclerViewAdapter(List<Chore> chores) {
+        mChoreSet = chores;
+    }
+
+    @Override
+    public ChoreRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        RelativeLayout v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.chore_card_item, parent, false);
+        ViewHolder vh = new ViewHolder(v);
+        vh.setAdapter(this);
+
+        return vh;
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Chore choreAtPosition = mChoreSet.get(position);
+        holder.mChoreName.setText(choreAtPosition.getName());
+        holder.setChoreId(choreAtPosition.getId());
+    }
+
+    @Override
+    public int getItemCount() {
+        return mChoreSet.size();
+    }
+
+    public void addItem(Chore chore) {
+        mChoreSet.add(chore);
+        notifyItemInserted(getItemCount()-1);
+    }
+
+    public void removeItem(int position) {
+        mChoreSet.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void editItem(int position, String choreName) {
+        Chore choreAtPosition = mChoreSet.get(position);
+        choreAtPosition.setName(choreName);
+        notifyItemChanged(position);
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public RelativeLayout mListItem;
         public TextView       mChoreName;
         public ImageView      mChoreCategoryIcon;
 
-        private CardView mCardFront;
-        private CardView mCardBack;
+        private long         mChoreId;
+        private CardView     mCardFront;
+        private CardView     mCardBack;
         private LinearLayout mDeleteBtn;
         private LinearLayout mEditBtn;
+        private ChoreRecyclerViewAdapter mAdapter;
 
         public ViewHolder(RelativeLayout choreListItemLayout) {
             super(choreListItemLayout);
@@ -49,9 +99,11 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
             mCardFront = (CardView)choreListItemLayout.findViewById(R.id.card_view_front);
             mCardBack  = (CardView)choreListItemLayout.findViewById(R.id.card_view_back);
             mDeleteBtn = (LinearLayout)mCardBack.findViewById(R.id.delete_btn);
+            mEditBtn   = (LinearLayout)mCardBack.findViewById(R.id.edit_btn);
 
             choreListItemLayout.setOnClickListener(this);
             mDeleteBtn.setOnClickListener(this);
+            mEditBtn.setOnClickListener(this);
         }
 
         @Override
@@ -61,7 +113,10 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
                     onListItemClick();
                     break;
                 case R.id.delete_btn:
-                    onDeleteBtnClick();
+                    onDeleteBtnClick(v.getContext());
+                    break;
+                case R.id.edit_btn:
+                    onEditBtnClick(v.getContext());
                     break;
                 default:
                     break;
@@ -102,42 +157,74 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
             flip.start();
         }
 
-        private void onDeleteBtnClick() {
+        private void onDeleteBtnClick(Context context) {
             Log.i("JMO", "Delete Button Pressed");
+            ChoresDataSource choresDataSource = ChoresDataSource.getInstance(context);
+            choresDataSource.deleteChore(mChoreId);
+            onListItemClick();
+            if (mAdapter != null) {
+                mAdapter.removeItem(getPosition());
+            }
+        }
+
+        private void onEditBtnClick(final Context context) {
+            Log.i("JMO", "Edit Button Pressed");
+            final Dialog choreEntryDialog = new Dialog(context);
+            choreEntryDialog.setContentView(R.layout.dialog_new_chore);
+            choreEntryDialog.setTitle(context.getString(R.string.edit_chore_dialog_title));
+            choreEntryDialog.setCancelable(true);
+            choreEntryDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                }
+            });
+            choreEntryDialog.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    choreEntryDialog.dismiss();
+                }
+            });
+            choreEntryDialog.findViewById(R.id.positive_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditText editText = (EditText) choreEntryDialog.findViewById(R.id.chore);
+                    if (editText != null) {
+                        final String choreName = editText.getText().toString();
+                        if (choreName.isEmpty()) {
+                            Toast.makeText(v.getContext(), v.getContext().getResources().getString(R.string.empty_chore_description_error),
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
+                            ChoresDataSource.getInstance(context).editChore(mChoreId, choreName);
+                            onListItemClick();
+
+                            if (mAdapter != null) {
+                                mAdapter.editItem(getPosition(), choreName);
+                            }
+
+                            choreEntryDialog.dismiss();
+                        }
+                    }
+                }
+            });
+            choreEntryDialog.show();
+
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        }
+
+        public void setChoreId(long choreId) {
+            mChoreId = choreId;
+        }
+
+        public void setAdapter(ChoreRecyclerViewAdapter adapter) {
+            mAdapter = adapter;
         }
     }
-
-    public ChoreRecyclerViewAdapter(List<Chore> chores) {
-        mChoreSet = chores;
-    }
-
-    @Override
-    public ChoreRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-        RelativeLayout v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.chore_card_item, parent, false);
-        // set the view's size, margins, paddings and layout parameters
-        // ...
-        ViewHolder vh = new ViewHolder(v);
-
-        return vh;
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-
-        Chore choreAtPosition = mChoreSet.get(position);
-        holder.mChoreName.setText(choreAtPosition.getName());
-
-    }
-
-    @Override
-    public int getItemCount() {
-        return mChoreSet.size();
-    }
-
-    public void addItem(Chore chore) {
-        mChoreSet.add(chore);
-        notifyItemInserted(getItemCount()-1);
-    }
-
 }

@@ -3,8 +3,13 @@ package brg.com.doitalready;
 /**
  * Created by jmo on 12/17/2014.
  */
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,13 +22,22 @@ import brg.com.doitalready.model.Chore;
 
 public class ChoresDataSource {
 
-    // Database fields
-    private SQLiteDatabase   database;
-    private ChoresDatabaseHelper dbHelper;
-    private String[]         allColumns = ChoresDatabaseHelper.getColumnIds();
+    private static ChoresDataSource instance = null;
 
-    public ChoresDataSource(Context context) {
+    // Database fields
+    private SQLiteDatabase database;
+    private ChoresDatabaseHelper dbHelper;
+    private String[] allColumns = ChoresDatabaseHelper.getColumnIds();
+
+    private ChoresDataSource(Context context) {
         dbHelper = new ChoresDatabaseHelper(context);
+    }
+
+    public static ChoresDataSource getInstance(Context context) {
+        if (instance == null) {
+            instance = new ChoresDataSource(context);
+        }
+        return instance;
     }
 
     public void open() throws SQLException {
@@ -48,13 +62,22 @@ public class ChoresDataSource {
     }
 
     public void deleteChore(Chore chore) {
-        long id = chore.getId();
-        int result = database.delete(ChoresDatabaseHelper.CHORES_TABLE_NAME, BaseColumns._ID + " = " + id, null);
+        deleteChore(chore.getId());
+    }
+
+    public void deleteChore(long choreId) {
+        int result = database.delete(ChoresDatabaseHelper.CHORES_TABLE_NAME, BaseColumns._ID + " = " + choreId, null);
         if (result == 1) {
-            System.out.println("Chore deleted with id: " + id);
+            System.out.println("Chore deleted with id: " + choreId);
         } else {
-            System.out.println("ERROR: Problem deleting Chore with id: " + id);
+            System.out.println("ERROR: Problem deleting Chore with id: " + choreId);
         }
+    }
+
+    public void editChore(long choreId, String choreName) {
+        ContentValues args = new ContentValues();
+        args.put(ChoresDatabaseHelper.COLUMN_NAME, choreName);
+        database.update(ChoresDatabaseHelper.CHORES_TABLE_NAME, args, BaseColumns._ID + " = " + choreId, null);
     }
 
     public List<Chore> getAllChores() {
@@ -76,8 +99,13 @@ public class ChoresDataSource {
 
     private Chore cursorToChore(Cursor cursor) {
         Chore chore = new Chore();
-        chore.setId(cursor.getLong(0));
-        chore.setName(cursor.getString(1));
+        chore.setId(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
+        chore.setName(cursor.getString(cursor.getColumnIndex(ChoresDatabaseHelper.COLUMN_NAME)));
+        chore.setCompleted(cursor.getInt(cursor.getColumnIndex(ChoresDatabaseHelper.COLUMN_COMPLETED)) == 1 ? true : false);
+        chore.setParentID(cursor.getLong(cursor.getColumnIndex(ChoresDatabaseHelper.COLUMN_PARENT_TASK_ID)));
+        chore.setCreationDate(ChoresDatabaseHelper.getDate(cursor, ChoresDatabaseHelper.COLUMN_DATE_CREATED));
+        chore.setCompletionDate(ChoresDatabaseHelper.getDate(cursor, ChoresDatabaseHelper.COLUMN_DATE_COMPLETED));
+
         return chore;
     }
 }
