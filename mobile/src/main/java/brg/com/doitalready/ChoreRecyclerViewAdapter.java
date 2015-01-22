@@ -55,6 +55,7 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
         Chore choreAtPosition = mChoreSet.get(position);
         holder.mChoreName.setText(choreAtPosition.getName());
         holder.setChoreId(choreAtPosition.getId());
+        holder.flipToFront();
     }
 
     @Override
@@ -124,16 +125,26 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
         }
 
         private void onListItemClick() {
-            final CardView start;
-            final CardView end;
             if (mCardFront.getVisibility() == View.VISIBLE) {
-                start = mCardFront;
-                end = mCardBack;
+                flipToBack();
             } else {
-                start = mCardBack;
-                end = mCardFront;
+                flipToFront();
             }
+        }
 
+        private void flipToFront() {
+            if (mCardFront.getVisibility() != View.VISIBLE) {
+                flip(mCardBack, mCardFront);
+            }
+        }
+
+        private void flipToBack() {
+            if (mCardBack.getVisibility() != View.VISIBLE) {
+                flip(mCardFront, mCardBack);
+            }
+        }
+
+        private void flip(final View start, final View end) {
             ValueAnimator flip = ObjectAnimator.ofFloat(start, "rotationY", 0f, -90f).setDuration(150);
             flip.addListener(new Animator.AnimatorListener() {
                 @Override
@@ -158,7 +169,6 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
         }
 
         private void onDeleteBtnClick(Context context) {
-            Log.i("JMO", "Delete Button Pressed");
             ChoresDataSource choresDataSource = ChoresDataSource.getInstance(context);
             choresDataSource.deleteChore(mChoreId);
             onListItemClick();
