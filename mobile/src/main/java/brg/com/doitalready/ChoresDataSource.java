@@ -3,13 +3,8 @@ package brg.com.doitalready;
 /**
  * Created by jmo on 12/17/2014.
  */
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,10 +19,23 @@ public class ChoresDataSource {
 
     private static ChoresDataSource instance = null;
 
-    // Database fields
     private SQLiteDatabase database;
     private ChoresDatabaseHelper dbHelper;
     private String[] allColumns = ChoresDatabaseHelper.getColumnIds();
+
+    public enum ChoreType {
+        ALL(0, ""),
+        COMPLETED(1, "TRUE"),
+        INCOMPLETE(2, "FALSE");
+
+        private final int value;
+        private final String queryValue;
+
+        ChoreType(int value, String queryValue) {
+            this.value = value;
+            this.queryValue = queryValue;
+        }
+    };
 
     private ChoresDataSource(Context context) {
         dbHelper = new ChoresDatabaseHelper(context);
@@ -80,11 +88,22 @@ public class ChoresDataSource {
         database.update(ChoresDatabaseHelper.CHORES_TABLE_NAME, args, BaseColumns._ID + " = " + choreId, null);
     }
 
-    public List<Chore> getAllChores() {
-        List<Chore> chores = new ArrayList<Chore>();
+    public void completeChore(long choreId, boolean completed) {
+        ContentValues args = new ContentValues();
+        args.put(ChoresDatabaseHelper.COLUMN_COMPLETED, completed);
+        database.update(ChoresDatabaseHelper.CHORES_TABLE_NAME, args, BaseColumns._ID + " = " + choreId, null);
+    }
 
+    public List<Chore> getChores(ChoreType choreType) {
+        List<Chore> chores = new ArrayList<Chore>();
+        String selectionClause = null;
+        String[] selectionArgs = null;
+        if (choreType != ChoreType.ALL) {
+            selectionClause = ChoresDatabaseHelper.COLUMN_COMPLETED + "=?";
+            selectionArgs = new String[]{choreType.queryValue};
+        }
         Cursor cursor = database.query(ChoresDatabaseHelper.CHORES_TABLE_NAME,
-                allColumns, null, null, null, null, null);
+                allColumns, selectionClause, selectionArgs, null, null, null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {

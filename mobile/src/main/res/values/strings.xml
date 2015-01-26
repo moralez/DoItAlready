@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">DoItAlready</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Do It Already</string>
     <string name="action_settings">Settings</string>
     <string name="add_chore_dialog_title">Add Something To Do</string>
     <string name="edit_chore_dialog_title">What\'s Changed?</string>
@@ -11,6 +10,7 @@
 
     <string name="card_view_delete">Delete</string>
     <string name="card_view_edit">Edit</string>
+    <string name="card_view_done">Done</string>
 
     <string-array name="main_navigation_options">
         <item>Test</item>

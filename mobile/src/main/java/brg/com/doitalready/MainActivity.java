@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
         mDatasource = ChoresDataSource.getInstance(this);
         mDatasource.open();
 
-        List<Chore> chores = mDatasource.getAllChores();
+        List<Chore> chores = mDatasource.getChores(ChoresDataSource.ChoreType.INCOMPLETE);
 
         mRecyclerView.setHasFixedSize(true);
 

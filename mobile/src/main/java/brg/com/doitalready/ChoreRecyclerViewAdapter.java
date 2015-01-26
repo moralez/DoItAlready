@@ -91,6 +91,7 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
         private CardView     mCardBack;
         private LinearLayout mDeleteBtn;
         private LinearLayout mEditBtn;
+        private LinearLayout mDoneBtn;
         private ChoreRecyclerViewAdapter mAdapter;
 
         public ViewHolder(RelativeLayout choreListItemLayout) {
@@ -101,10 +102,12 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
             mCardBack  = (CardView)choreListItemLayout.findViewById(R.id.card_view_back);
             mDeleteBtn = (LinearLayout)mCardBack.findViewById(R.id.delete_btn);
             mEditBtn   = (LinearLayout)mCardBack.findViewById(R.id.edit_btn);
+            mDoneBtn   = (LinearLayout)mCardBack.findViewById(R.id.done_btn);
 
             choreListItemLayout.setOnClickListener(this);
             mDeleteBtn.setOnClickListener(this);
             mEditBtn.setOnClickListener(this);
+            mDoneBtn.setOnClickListener(this);
         }
 
         @Override
@@ -118,6 +121,9 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
                     break;
                 case R.id.edit_btn:
                     onEditBtnClick(v.getContext());
+                    break;
+                case R.id.done_btn:
+                    onDoneBtnClick(v.getContext());
                     break;
                 default:
                     break;
@@ -178,11 +184,13 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
         }
 
         private void onEditBtnClick(final Context context) {
-            Log.i("JMO", "Edit Button Pressed");
             final Dialog choreEntryDialog = new Dialog(context);
             choreEntryDialog.setContentView(R.layout.dialog_new_chore);
             choreEntryDialog.setTitle(context.getString(R.string.edit_chore_dialog_title));
             choreEntryDialog.setCancelable(true);
+            EditText editText = (EditText) choreEntryDialog.findViewById(R.id.chore);
+            editText.setText(mChoreName.getText());
+            editText.setSelection(editText.getText().length());
             choreEntryDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
@@ -227,6 +235,15 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
 
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        }
+
+        private void onDoneBtnClick(Context context) {
+            ChoresDataSource choresDataSource = ChoresDataSource.getInstance(context);
+            choresDataSource.completeChore(mChoreId, true);
+            onListItemClick();
+            if (mAdapter != null) {
+                mAdapter.removeItem(getPosition());
+            }
         }
 
         public void setChoreId(long choreId) {
