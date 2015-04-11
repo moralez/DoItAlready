@@ -9,6 +9,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
@@ -95,15 +96,19 @@ public class ChoresDataSource {
     }
 
     public List<Chore> getChores(ChoreType choreType) {
-        List<Chore> chores = new ArrayList<Chore>();
+        List<Chore> chores = new ArrayList<>();
         String selectionClause = null;
         String[] selectionArgs = null;
+        String groupByClause = null;
+        String orderByClause = null;
         if (choreType != ChoreType.ALL) {
             selectionClause = ChoresDatabaseHelper.COLUMN_COMPLETED + "=?";
             selectionArgs = new String[]{choreType.queryValue};
+        } else {
+            orderByClause = ChoresDatabaseHelper.COLUMN_COMPLETED + " ASC";
         }
         Cursor cursor = database.query(ChoresDatabaseHelper.CHORES_TABLE_NAME,
-                allColumns, selectionClause, selectionArgs, null, null, null);
+                allColumns, selectionClause, selectionArgs, groupByClause, null, orderByClause);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -114,6 +119,16 @@ public class ChoresDataSource {
         // make sure to close the cursor
         cursor.close();
         return chores;
+    }
+
+    public long getNumberOfChores(ChoreType choreType) {
+        String selectionClause = null;
+        String[] selectionArgs = null;
+        if (choreType != ChoreType.ALL) {
+            selectionClause = ChoresDatabaseHelper.COLUMN_COMPLETED + "=?";
+            selectionArgs = new String[]{choreType.queryValue};
+        }
+        return DatabaseUtils.queryNumEntries(database, ChoresDatabaseHelper.CHORES_TABLE_NAME, selectionClause, selectionArgs);
     }
 
     private Chore cursorToChore(Cursor cursor) {

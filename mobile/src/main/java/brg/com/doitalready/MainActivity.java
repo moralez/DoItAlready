@@ -46,14 +46,14 @@ public class MainActivity extends Activity {
         mDatasource = ChoresDataSource.getInstance(this);
         mDatasource.open();
 
-        List<Chore> chores = mDatasource.getChores(ChoresDataSource.ChoreType.INCOMPLETE);
+        List<Chore> chores = mDatasource.getChores(ChoresDataSource.ChoreType.ALL);
 
         mRecyclerView.setHasFixedSize(true);
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new ChoreRecyclerViewAdapter(chores);
+        mAdapter = new ChoreRecyclerViewAdapter(chores, ChoresDataSource.ChoreType.ALL);
         mRecyclerView.setAdapter(mAdapter);
 
         mFab.setOnClickListener(new View.OnClickListener() {

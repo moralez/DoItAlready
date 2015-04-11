@@ -40,6 +40,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
+                    android:textColor="@android:color/black"
                     android:text="@string/card_view_delete"/>
 
             </LinearLayout>
@@ -63,6 +64,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
+                    android:textColor="@android:color/black"
                     android:text="@string/card_view_edit"/>
 
             </LinearLayout>
@@ -85,6 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
+                    android:textColor="@android:color/black"
                     android:text="@string/card_view_done"/>
 
             </LinearLayout>

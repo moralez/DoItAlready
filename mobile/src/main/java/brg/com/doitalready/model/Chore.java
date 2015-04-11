@@ -61,6 +61,10 @@ public class Chore {
         this.parentID = parentID;
     }
 
+    public String getCompletedString() {
+        return completed ? "COMPLETED" : "INCOMPLETE";
+    }
+
     // Will be used by the ArrayAdapter in the ListView
     @Override
     public String toString() {

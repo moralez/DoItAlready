@@ -6,16 +6,11 @@ import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,10 +18,12 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import java.util.List;
+import java.util.Map;
 
+import brg.com.doitalready.ChoresDataSource.ChoreType;
+import brg.com.doitalready.helpers.LoggingHelper;
 import brg.com.doitalready.model.Chore;
 
 /**
@@ -34,17 +31,46 @@ import brg.com.doitalready.model.Chore;
  */
 public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecyclerViewAdapter.ViewHolder> {
 
-    private List<Chore> mChoreSet;
+    private List<Object> mChoreSet;
+    private AdvancedHashMap choreSet;
 
-    public ChoreRecyclerViewAdapter(List<Chore> chores) {
-        mChoreSet = chores;
+    private enum ListItemType {
+        SECTION_HEADER,
+        SECTION_CHORE
+    }
+
+    public ChoreRecyclerViewAdapter(List<Chore> chores, ChoreType choreType) {
+        choreSet = new AdvancedHashMap();
+        for (Chore chore : chores) {
+            choreSet.putItem(chore.getCompletedString(), chore);
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        Object listItem = null;
+        int lowIndex = 0;
+        for (Map.Entry<String, List<Object>> entry : choreSet.entrySet()) {
+            if (position >= lowIndex && position < lowIndex + entry.getValue().size()) {
+                listItem = entry.getValue().get(position-lowIndex);
+                break;
+            }
+            lowIndex += entry.getValue().size();
+        }
+        return listItem instanceof String ? ListItemType.SECTION_HEADER.ordinal() : ListItemType.SECTION_CHORE.ordinal();
     }
 
     @Override
     public ChoreRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LoggingHelper.logFunctionEnter(parent, viewType);
 
-        RelativeLayout v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.chore_card_item, parent, false);
-        ViewHolder vh = new ViewHolder(v);
+        RelativeLayout v;
+        if (viewType == ListItemType.SECTION_HEADER.ordinal()) {
+            v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.chore_list_section_header, parent, false);
+        } else {
+            v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.chore_card_item, parent, false);
+        }
+        ViewHolder vh = new ViewHolder(v, ListItemType.values()[viewType]);
         vh.setAdapter(this);
 
         return vh;
@@ -52,20 +78,30 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Chore choreAtPosition = mChoreSet.get(position);
-        holder.mChoreName.setText(choreAtPosition.getName());
-        holder.setChoreId(choreAtPosition.getId());
-        holder.flipToFront();
+        LoggingHelper.logFunctionEnter(holder, position);
+
+        Object listItemAtPosition = choreSet.getItemAtIndex(position);
+        if (listItemAtPosition instanceof String) {
+            holder.mSectionTitle.setText((String)listItemAtPosition);
+        } else if (listItemAtPosition instanceof Chore) {
+            Chore chore = (Chore)listItemAtPosition;
+            holder.mChoreName.setText(chore.getName());
+            holder.setChoreId(chore.getId());
+            holder.flipToFront();
+        }
     }
 
     @Override
     public int getItemCount() {
-        return mChoreSet.size();
+        return choreSet.numberOfElements();
     }
 
     public void addItem(Chore chore) {
-        mChoreSet.add(chore);
-        notifyItemInserted(getItemCount()-1);
+        choreSet.putItem(chore.getCompletedString(), chore);
+        int position = choreSet.indexOfElement(chore);
+        if (position != -1) {
+            notifyItemInserted(position);
+        }
     }
 
     public void removeItem(int position) {
@@ -74,10 +110,21 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
     }
 
     public void editItem(int position, String choreName) {
-        Chore choreAtPosition = mChoreSet.get(position);
+        Chore choreAtPosition = (Chore)mChoreSet.get(position);
         choreAtPosition.setName(choreName);
         notifyItemChanged(position);
         notifyDataSetChanged();
+    }
+
+    public void itemCompleted(int position) {
+        Chore chore = (Chore)choreSet.getItemAtIndex(position);
+        choreSet.removeItem(chore.getCompletedString(), chore);
+        chore.setCompleted(!chore.getCompleted());
+        choreSet.putItem(chore.getCompletedString(), chore);
+        int newPosition = choreSet.indexOfElement(chore);
+        if (position != -1) {
+            notifyItemMoved(position, newPosition);
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -94,20 +141,26 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
         private LinearLayout mDoneBtn;
         private ChoreRecyclerViewAdapter mAdapter;
 
-        public ViewHolder(RelativeLayout choreListItemLayout) {
-            super(choreListItemLayout);
-            mListItem  = choreListItemLayout;
-            mChoreName = (TextView)choreListItemLayout.findViewById(R.id.chore_name_card);
-            mCardFront = (CardView)choreListItemLayout.findViewById(R.id.card_view_front);
-            mCardBack  = (CardView)choreListItemLayout.findViewById(R.id.card_view_back);
-            mDeleteBtn = (LinearLayout)mCardBack.findViewById(R.id.delete_btn);
-            mEditBtn   = (LinearLayout)mCardBack.findViewById(R.id.edit_btn);
-            mDoneBtn   = (LinearLayout)mCardBack.findViewById(R.id.done_btn);
+        private TextView    mSectionTitle;
 
-            choreListItemLayout.setOnClickListener(this);
-            mDeleteBtn.setOnClickListener(this);
-            mEditBtn.setOnClickListener(this);
-            mDoneBtn.setOnClickListener(this);
+        public ViewHolder(RelativeLayout choreListItemLayout, ListItemType listItemType) {
+            super(choreListItemLayout);
+            if (listItemType == ListItemType.SECTION_HEADER) {
+                mSectionTitle = (TextView) choreListItemLayout.findViewById(R.id.sectionTitle);
+            } else if (listItemType == ListItemType.SECTION_CHORE) {
+                mListItem = choreListItemLayout;
+                mChoreName = (TextView) choreListItemLayout.findViewById(R.id.chore_name_card);
+                mCardFront = (CardView) choreListItemLayout.findViewById(R.id.card_view_front);
+                mCardBack = (CardView) choreListItemLayout.findViewById(R.id.card_view_back);
+                mDeleteBtn = (LinearLayout) mCardBack.findViewById(R.id.delete_btn);
+                mEditBtn = (LinearLayout) mCardBack.findViewById(R.id.edit_btn);
+                mDoneBtn = (LinearLayout) mCardBack.findViewById(R.id.done_btn);
+
+                choreListItemLayout.setOnClickListener(this);
+                mDeleteBtn.setOnClickListener(this);
+                mEditBtn.setOnClickListener(this);
+                mDoneBtn.setOnClickListener(this);
+            }
         }
 
         @Override
@@ -242,7 +295,7 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
             choresDataSource.completeChore(mChoreId, true);
             onListItemClick();
             if (mAdapter != null) {
-                mAdapter.removeItem(getPosition());
+                mAdapter.itemCompleted(getAdapterPosition());
             }
         }
 

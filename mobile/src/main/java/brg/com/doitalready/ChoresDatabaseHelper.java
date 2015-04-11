@@ -84,7 +84,7 @@ public class ChoresDatabaseHelper extends SQLiteOpenHelper {
         columns.put(COLUMN_NAME,           "TEXT");
         columns.put(COLUMN_DATE_CREATED,   "DATETIME DEFAULT CURRENT_TIMESTAMP");
         columns.put(COLUMN_DATE_COMPLETED, "DATETIME");
-        columns.put(COLUMN_COMPLETED,      "BOOLEAN DEFAULT FALSE NOT NULL");
+        columns.put(COLUMN_COMPLETED,      "BOOLEAN DEFAULT 0 NOT NULL");
         columns.put(COLUMN_PARENT_TASK_ID, "INTEGER");
 
         return columns;
