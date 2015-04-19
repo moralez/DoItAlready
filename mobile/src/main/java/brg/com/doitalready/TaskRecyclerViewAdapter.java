@@ -22,27 +22,27 @@ import android.widget.Toast;
 import java.util.List;
 import java.util.Map;
 
-import brg.com.doitalready.ChoresDataSource.ChoreType;
+import brg.com.doitalready.TasksDataSource.TaskType;
 import brg.com.doitalready.helpers.LoggingHelper;
-import brg.com.doitalready.model.Chore;
+import brg.com.doitalready.model.Task;
 
 /**
  * Created by jmo on 12/20/2014.
  */
-public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecyclerViewAdapter.ViewHolder> {
+public class TaskRecyclerViewAdapter extends RecyclerView.Adapter<TaskRecyclerViewAdapter.ViewHolder> {
 
-    private List<Object> mChoreSet;
-    private AdvancedHashMap choreSet;
+    private List<Object> mTaskSet;
+    private AdvancedHashMap taskSet;
 
     private enum ListItemType {
         SECTION_HEADER,
-        SECTION_CHORE
+        SECTION_TASK
     }
 
-    public ChoreRecyclerViewAdapter(List<Chore> chores, ChoreType choreType) {
-        choreSet = new AdvancedHashMap();
-        for (Chore chore : chores) {
-            choreSet.putItem(chore.getCompletedString(), chore);
+    public TaskRecyclerViewAdapter(List<Task> tasks, TaskType taskType) {
+        taskSet = new AdvancedHashMap();
+        for (Task task : tasks) {
+            taskSet.putItem(task.getCompletedString(), task);
         }
     }
 
@@ -50,25 +50,25 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
     public int getItemViewType(int position) {
         Object listItem = null;
         int lowIndex = 0;
-        for (Map.Entry<String, List<Object>> entry : choreSet.entrySet()) {
+        for (Map.Entry<String, List<Object>> entry : taskSet.entrySet()) {
             if (position >= lowIndex && position < lowIndex + entry.getValue().size()) {
                 listItem = entry.getValue().get(position-lowIndex);
                 break;
             }
             lowIndex += entry.getValue().size();
         }
-        return listItem instanceof String ? ListItemType.SECTION_HEADER.ordinal() : ListItemType.SECTION_CHORE.ordinal();
+        return listItem instanceof String ? ListItemType.SECTION_HEADER.ordinal() : ListItemType.SECTION_TASK.ordinal();
     }
 
     @Override
-    public ChoreRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TaskRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LoggingHelper.logFunctionEnter(parent, viewType);
 
         RelativeLayout v;
         if (viewType == ListItemType.SECTION_HEADER.ordinal()) {
-            v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.chore_list_section_header, parent, false);
+            v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.task_list_section_header, parent, false);
         } else {
-            v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.chore_card_item, parent, false);
+            v = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.task_card_item, parent, false);
         }
         ViewHolder vh = new ViewHolder(v, ListItemType.values()[viewType]);
         vh.setAdapter(this);
@@ -80,48 +80,48 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
     public void onBindViewHolder(ViewHolder holder, int position) {
         LoggingHelper.logFunctionEnter(holder, position);
 
-        Object listItemAtPosition = choreSet.getItemAtIndex(position);
+        Object listItemAtPosition = taskSet.getItemAtIndex(position);
         if (listItemAtPosition instanceof String) {
             holder.mSectionTitle.setText((String)listItemAtPosition);
-        } else if (listItemAtPosition instanceof Chore) {
-            Chore chore = (Chore)listItemAtPosition;
-            holder.mChoreName.setText(chore.getName());
-            holder.setChoreId(chore.getId());
+        } else if (listItemAtPosition instanceof Task) {
+            Task task = (Task)listItemAtPosition;
+            holder.mTaskName.setText(task.getName());
+            holder.setTaskId(task.getId());
             holder.flipToFront();
         }
     }
 
     @Override
     public int getItemCount() {
-        return choreSet.numberOfElements();
+        return taskSet.numberOfElements();
     }
 
-    public void addItem(Chore chore) {
-        choreSet.putItem(chore.getCompletedString(), chore);
-        int position = choreSet.indexOfElement(chore);
+    public void addItem(Task task) {
+        taskSet.putItem(task.getCompletedString(), task);
+        int position = taskSet.indexOfElement(task);
         if (position != -1) {
             notifyItemInserted(position);
         }
     }
 
     public void removeItem(int position) {
-        mChoreSet.remove(position);
+        mTaskSet.remove(position);
         notifyItemRemoved(position);
     }
 
-    public void editItem(int position, String choreName) {
-        Chore choreAtPosition = (Chore)mChoreSet.get(position);
-        choreAtPosition.setName(choreName);
+    public void editItem(int position, String taskName) {
+        Task taskAtPosition = (Task) mTaskSet.get(position);
+        taskAtPosition.setName(taskName);
         notifyItemChanged(position);
         notifyDataSetChanged();
     }
 
     public void itemCompleted(int position) {
-        Chore chore = (Chore)choreSet.getItemAtIndex(position);
-        choreSet.removeItem(chore.getCompletedString(), chore);
-        chore.setCompleted(!chore.getCompleted());
-        choreSet.putItem(chore.getCompletedString(), chore);
-        int newPosition = choreSet.indexOfElement(chore);
+        Task task = (Task) taskSet.getItemAtIndex(position);
+        taskSet.removeItem(task.getCompletedString(), task);
+        task.setCompleted(!task.getCompleted());
+        taskSet.putItem(task.getCompletedString(), task);
+        int newPosition = taskSet.indexOfElement(task);
         if (position != -1) {
             notifyItemMoved(position, newPosition);
         }
@@ -130,33 +130,33 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public RelativeLayout mListItem;
-        public TextView       mChoreName;
-        public ImageView      mChoreCategoryIcon;
+        public TextView       mTaskName;
+        public ImageView      mTaskCategoryIcon;
 
-        private long         mChoreId;
+        private long mTaskId;
         private CardView     mCardFront;
         private CardView     mCardBack;
         private LinearLayout mDeleteBtn;
         private LinearLayout mEditBtn;
         private LinearLayout mDoneBtn;
-        private ChoreRecyclerViewAdapter mAdapter;
+        private TaskRecyclerViewAdapter mAdapter;
 
         private TextView    mSectionTitle;
 
-        public ViewHolder(RelativeLayout choreListItemLayout, ListItemType listItemType) {
-            super(choreListItemLayout);
+        public ViewHolder(RelativeLayout taskListItemLayout, ListItemType listItemType) {
+            super(taskListItemLayout);
             if (listItemType == ListItemType.SECTION_HEADER) {
-                mSectionTitle = (TextView) choreListItemLayout.findViewById(R.id.sectionTitle);
-            } else if (listItemType == ListItemType.SECTION_CHORE) {
-                mListItem = choreListItemLayout;
-                mChoreName = (TextView) choreListItemLayout.findViewById(R.id.chore_name_card);
-                mCardFront = (CardView) choreListItemLayout.findViewById(R.id.card_view_front);
-                mCardBack = (CardView) choreListItemLayout.findViewById(R.id.card_view_back);
+                mSectionTitle = (TextView) taskListItemLayout.findViewById(R.id.sectionTitle);
+            } else if (listItemType == ListItemType.SECTION_TASK) {
+                mListItem = taskListItemLayout;
+                mTaskName = (TextView) taskListItemLayout.findViewById(R.id.task_name_card);
+                mCardFront = (CardView) taskListItemLayout.findViewById(R.id.card_view_front);
+                mCardBack = (CardView) taskListItemLayout.findViewById(R.id.card_view_back);
                 mDeleteBtn = (LinearLayout) mCardBack.findViewById(R.id.delete_btn);
                 mEditBtn = (LinearLayout) mCardBack.findViewById(R.id.edit_btn);
                 mDoneBtn = (LinearLayout) mCardBack.findViewById(R.id.done_btn);
 
-                choreListItemLayout.setOnClickListener(this);
+                taskListItemLayout.setOnClickListener(this);
                 mDeleteBtn.setOnClickListener(this);
                 mEditBtn.setOnClickListener(this);
                 mDoneBtn.setOnClickListener(this);
@@ -166,7 +166,7 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.chore_list_item:
+                case R.id.task_list_item:
                     onListItemClick();
                     break;
                 case R.id.delete_btn:
@@ -228,8 +228,8 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
         }
 
         private void onDeleteBtnClick(Context context) {
-            ChoresDataSource choresDataSource = ChoresDataSource.getInstance(context);
-            choresDataSource.deleteChore(mChoreId);
+            TasksDataSource tasksDataSource = TasksDataSource.getInstance(context);
+            tasksDataSource.deleteTask(mTaskId);
             onListItemClick();
             if (mAdapter != null) {
                 mAdapter.removeItem(getPosition());
@@ -237,73 +237,73 @@ public class ChoreRecyclerViewAdapter extends RecyclerView.Adapter<ChoreRecycler
         }
 
         private void onEditBtnClick(final Context context) {
-            final Dialog choreEntryDialog = new Dialog(context);
-            choreEntryDialog.setContentView(R.layout.dialog_new_chore);
-            choreEntryDialog.setTitle(context.getString(R.string.edit_chore_dialog_title));
-            choreEntryDialog.setCancelable(true);
-            EditText editText = (EditText) choreEntryDialog.findViewById(R.id.chore);
-            editText.setText(mChoreName.getText());
+            final Dialog taskEntryDialog = new Dialog(context);
+            taskEntryDialog.setContentView(R.layout.dialog_new_task);
+            taskEntryDialog.setTitle(context.getString(R.string.edit_task_dialog_title));
+            taskEntryDialog.setCancelable(true);
+            EditText editText = (EditText) taskEntryDialog.findViewById(R.id.task);
+            editText.setText(mTaskName.getText());
             editText.setSelection(editText.getText().length());
-            choreEntryDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            taskEntryDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                 }
             });
-            choreEntryDialog.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+            taskEntryDialog.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                    choreEntryDialog.dismiss();
+                    taskEntryDialog.dismiss();
                 }
             });
-            choreEntryDialog.findViewById(R.id.positive_button).setOnClickListener(new View.OnClickListener() {
+            taskEntryDialog.findViewById(R.id.positive_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    EditText editText = (EditText) choreEntryDialog.findViewById(R.id.chore);
+                    EditText editText = (EditText) taskEntryDialog.findViewById(R.id.task);
                     if (editText != null) {
-                        final String choreName = editText.getText().toString();
-                        if (choreName.isEmpty()) {
-                            Toast.makeText(v.getContext(), v.getContext().getResources().getString(R.string.empty_chore_description_error),
+                        final String taskName = editText.getText().toString();
+                        if (taskName.isEmpty()) {
+                            Toast.makeText(v.getContext(), v.getContext().getResources().getString(R.string.empty_task_description_error),
                                     Toast.LENGTH_LONG).show();
                         } else {
                             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 
-                            ChoresDataSource.getInstance(context).editChore(mChoreId, choreName);
+                            TasksDataSource.getInstance(context).editTask(mTaskId, taskName);
                             onListItemClick();
 
                             if (mAdapter != null) {
-                                mAdapter.editItem(getPosition(), choreName);
+                                mAdapter.editItem(getPosition(), taskName);
                             }
 
-                            choreEntryDialog.dismiss();
+                            taskEntryDialog.dismiss();
                         }
                     }
                 }
             });
-            choreEntryDialog.show();
+            taskEntryDialog.show();
 
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         }
 
         private void onDoneBtnClick(Context context) {
-            ChoresDataSource choresDataSource = ChoresDataSource.getInstance(context);
-            choresDataSource.completeChore(mChoreId, true);
+            TasksDataSource tasksDataSource = TasksDataSource.getInstance(context);
+            tasksDataSource.completeTask(mTaskId, true);
             onListItemClick();
             if (mAdapter != null) {
                 mAdapter.itemCompleted(getAdapterPosition());
             }
         }
 
-        public void setChoreId(long choreId) {
-            mChoreId = choreId;
+        public void setTaskId(long taskId) {
+            mTaskId = taskId;
         }
 
-        public void setAdapter(ChoreRecyclerViewAdapter adapter) {
+        public void setAdapter(TaskRecyclerViewAdapter adapter) {
             mAdapter = adapter;
         }
     }

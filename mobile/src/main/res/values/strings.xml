@@ -3,8 +3,8 @@
 
     <string name="app_name">Do It Already</string>
     <string name="action_settings">Settings</string>
-    <string name="add_chore_dialog_title">Add Something To Do</string>
-    <string name="edit_chore_dialog_title">What\'s Changed?</string>
+    <string name="add_task_dialog_title">Add Something To Do</string>
+    <string name="edit_task_dialog_title">What\'s Changed?</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
 
@@ -17,6 +17,10 @@
         <item>Settings</item>
     </string-array>
 
-    <string name="empty_chore_description_error">Please Enter SOMETHING To Do</string>
+    <string name="empty_task_description_error">Please Enter SOMETHING To Do</string>
+    <string name="task_name_label">Task Name</string>
+    <string name="delete_btn_label">Delete</string>
+    <string name="complete_btn_label">Finish</string>
+    <string name="task_category_icon_content_desc">Category Icon for Task</string>
 
 </resources>

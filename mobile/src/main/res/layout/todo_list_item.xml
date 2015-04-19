@@ -8,30 +8,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true">
 
         <RelativeLayout
-            android:id="@+id/choreDescriptionView"
+            android:id="@+id/taskDescriptionView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/choreCategoryIcon"
+                android:id="@+id/taskCategoryIcon"
+                android:contentDescription="@string/task_category_icon_content_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:layout_alignParentTop="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"/>
 
             <TextView
-                android:id="@+id/choreName"
+                android:id="@+id/taskName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Chore Name"
+                android:text="@string/task_name_label"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/choreCategoryIcon" />
+                android:layout_toEndOf="@id/taskCategoryIcon"
+                android:layout_toRightOf="@id/taskCategoryIcon"/>
 
         </RelativeLayout>
 
@@ -44,13 +48,13 @@
                 android:id="@+id/markCompletedBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Finish" />
+                android:text="@string/complete_btn_label" />
 
             <Button
                 android:id="@+id/deleteBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delete" />
+                android:text="@string/delete_btn_label" />
 
         </RelativeLayout>
     </ViewFlipper>

@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Created by jmo on 12/17/2014.
  */
-public class Chore {
+public class Task {
     private long    id;
     private String  name;
     private Date    creationDate;

@@ -21,15 +21,15 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import brg.com.doitalready.model.Chore;
+import brg.com.doitalready.model.Task;
 
 public class MainActivity extends Activity {
 
-    private ChoresDataSource mDatasource;
+    private TasksDataSource mDatasource;
     private ImageButton      mFab;
 
     private RecyclerView               mRecyclerView;
-    private ChoreRecyclerViewAdapter   mAdapter;
+    private TaskRecyclerViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private ListView mDrawerList;
@@ -43,64 +43,64 @@ public class MainActivity extends Activity {
         mRecyclerView = (RecyclerView)findViewById(R.id.my_recycler_view);
         mDrawerList   = (ListView)findViewById(R.id.navigation_drawer);
 
-        mDatasource = ChoresDataSource.getInstance(this);
+        mDatasource = TasksDataSource.getInstance(this);
         mDatasource.open();
 
-        List<Chore> chores = mDatasource.getChores(ChoresDataSource.ChoreType.ALL);
+        List<Task> tasks = mDatasource.getTasks(TasksDataSource.TaskType.ALL);
 
         mRecyclerView.setHasFixedSize(true);
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new ChoreRecyclerViewAdapter(chores, ChoresDataSource.ChoreType.ALL);
+        mAdapter = new TaskRecyclerViewAdapter(tasks, TasksDataSource.TaskType.ALL);
         mRecyclerView.setAdapter(mAdapter);
 
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                final Dialog choreEntryDialog = new Dialog(MainActivity.this);
-                choreEntryDialog.setContentView(R.layout.dialog_new_chore);
-                choreEntryDialog.setTitle(getString(R.string.add_chore_dialog_title));
-                choreEntryDialog.setCancelable(true);
-                choreEntryDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                final Dialog taskEntryDialog = new Dialog(MainActivity.this);
+                taskEntryDialog.setContentView(R.layout.dialog_new_task);
+                taskEntryDialog.setTitle(getString(R.string.add_task_dialog_title));
+                taskEntryDialog.setCancelable(true);
+                taskEntryDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                     }
                 });
-                choreEntryDialog.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+                taskEntryDialog.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                        choreEntryDialog.dismiss();
+                        taskEntryDialog.dismiss();
                     }
                 });
-                choreEntryDialog.findViewById(R.id.positive_button).setOnClickListener(new View.OnClickListener() {
+                taskEntryDialog.findViewById(R.id.positive_button).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        EditText editText = (EditText) choreEntryDialog.findViewById(R.id.chore);
+                        EditText editText = (EditText) taskEntryDialog.findViewById(R.id.task);
                         if (editText != null) {
                             String value = editText.getText().toString();
                             if (value.isEmpty()) {
-                                Toast.makeText(v.getContext(), v.getContext().getResources().getString(R.string.empty_chore_description_error),
+                                Toast.makeText(v.getContext(), v.getContext().getResources().getString(R.string.empty_task_description_error),
                                         Toast.LENGTH_LONG).show();
                             } else {
                                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 
-                                Chore chore = mDatasource.createChore(value);
-                                mAdapter.addItem(chore);
+                                Task task = mDatasource.createTask(value);
+                                mAdapter.addItem(task);
 
-                                choreEntryDialog.dismiss();
+                                taskEntryDialog.dismiss();
                             }
                         }
                     }
                 });
-                choreEntryDialog.show();
+                taskEntryDialog.show();
 
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
@@ -150,9 +150,9 @@ public class MainActivity extends Activity {
         super.onPause();
     }
 
-    private class ChoreAdapter extends ArrayAdapter<Chore> {
+    private class TaskAdapter extends ArrayAdapter<Task> {
 
-        public ChoreAdapter(Context context, int resource, int textViewResourceId, List<Chore> objects) {
+        public TaskAdapter(Context context, int resource, int textViewResourceId, List<Task> objects) {
             super(context, resource, textViewResourceId, objects);
         }
     }

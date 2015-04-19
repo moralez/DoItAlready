@@ -1,6 +1,5 @@
 package brg.com.doitalready;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,13 +20,13 @@ import java.util.Set;
 /**
  * Created by jmo on 12/17/2014.
  */
-public class ChoresDatabaseHelper extends SQLiteOpenHelper {
+public class TasksDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME                 = "doitalready.db";
     private static final int    DATABASE_VERSION              = 1;
-    public  static final String CHORES_TABLE_NAME             = "chores";
-    private static final String CHORES_TABLE_CREATE_BEGIN     = "CREATE TABLE " + CHORES_TABLE_NAME + " (";
-    private static final String CHORES_TABLE_CREATE_END       =  ");";
+    public  static final String TASKS_TABLE_NAME              = "tasks";
+    private static final String TASKS_TABLE_CREATE_BEGIN = "CREATE TABLE " + TASKS_TABLE_NAME + " (";
+    private static final String TASKS_TABLE_CREATE_END =  ");";
 
     public static final String COLUMN_NAME                    = "NAME";
     public static final String COLUMN_DATE_CREATED            = "DATE_CREATED";
@@ -35,7 +34,7 @@ public class ChoresDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_COMPLETED               = "COMPLETED";
     public static final String COLUMN_PARENT_TASK_ID          = "NAME";
 
-    ChoresDatabaseHelper(Context context) {
+    TasksDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -56,8 +55,8 @@ public class ChoresDatabaseHelper extends SQLiteOpenHelper {
     }
 
     private String getCreateQuery() {
-        HashMap<String, String> tableColumns = getChoresTableColumns();
-        StringBuilder createQuery = new StringBuilder(CHORES_TABLE_CREATE_BEGIN);
+        HashMap<String, String> tableColumns = getTasksTableColumns();
+        StringBuilder createQuery = new StringBuilder(TASKS_TABLE_CREATE_BEGIN);
         Iterator it = tableColumns.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry)it.next();
@@ -70,14 +69,14 @@ public class ChoresDatabaseHelper extends SQLiteOpenHelper {
             }
             it.remove();
         }
-        createQuery.append(CHORES_TABLE_CREATE_END);
+        createQuery.append(TASKS_TABLE_CREATE_END);
 
         Log.i("JMO", "Final Create Query: " + createQuery.toString());
 
         return createQuery.toString();
     }
 
-    private static HashMap<String, String> getChoresTableColumns() {
+    private static HashMap<String, String> getTasksTableColumns() {
         HashMap<String, String> columns = new HashMap<>();
 
         columns.put(BaseColumns._ID,       "INTEGER PRIMARY KEY AUTOINCREMENT");
@@ -91,7 +90,7 @@ public class ChoresDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public static String[] getColumnIds() {
-        Set<String> keys = getChoresTableColumns().keySet();
+        Set<String> keys = getTasksTableColumns().keySet();
         return keys.toArray(new String[keys.size()]);
     }
 

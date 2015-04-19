@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:divider="@drawable/chore_dialog_horizontal_divider"
+    android:divider="@drawable/task_dialog_horizontal_divider"
     android:showDividers="middle">
 
     <FrameLayout
@@ -12,10 +12,10 @@
         android:padding="@dimen/activity_horizontal_margin">
 
         <EditText
-            android:id="@+id/chore"
+            android:id="@+id/task"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/chore_dialog_edit_text_bottom_margin"
+            android:layout_marginBottom="@dimen/task_dialog_edit_text_bottom_margin"
             android:focusable="true">
             <requestFocus />
         </EditText>
@@ -26,14 +26,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:divider="@drawable/chore_dialog_vertical_divider"
+        android:divider="@drawable/task_dialog_vertical_divider"
         android:showDividers="middle"
         android:weightSum="2">
 
         <TextView
             android:id="@+id/cancel_button"
             android:layout_width="0dp"
-            android:layout_height="@dimen/chore_dialog_btn_height"
+            android:layout_height="@dimen/task_dialog_btn_height"
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/dialog_cancel" />
@@ -41,7 +41,7 @@
         <TextView
             android:id="@+id/positive_button"
             android:layout_width="0dp"
-            android:layout_height="@dimen/chore_dialog_btn_height"
+            android:layout_height="@dimen/task_dialog_btn_height"
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/dialog_ok" />
