@@ -13,6 +13,7 @@
     <dimen name="card_view_padding">10dp</dimen>
     <dimen name="card_view_height">100dp</dimen>
     <dimen name="card_view_category_icon_margin">5dp</dimen>
+    <dimen name="card_view_label_padding">10dp</dimen>
 
     <dimen name="task_dialog_btn_height">50dp</dimen>
     <dimen name="task_dialog_edit_text_bottom_margin">10dp</dimen>

@@ -14,6 +14,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
+import brg.com.doitalready.helpers.LoggingHelper;
 import brg.com.doitalready.model.Task;
 
 public class TasksDataSource {
@@ -77,9 +78,9 @@ public class TasksDataSource {
     public void deleteTask(long taskId) {
         int result = database.delete(TasksDatabaseHelper.TASKS_TABLE_NAME, BaseColumns._ID + " = " + taskId, null);
         if (result == 1) {
-            System.out.println("Task deleted with id: " + taskId);
+            LoggingHelper.logDebug("Task deleted with id: " + taskId);
         } else {
-            System.out.println("ERROR: Problem deleting Task with id: " + taskId);
+            LoggingHelper.logDebug("ERROR: Problem deleting Task with id: " + taskId);
         }
     }
 

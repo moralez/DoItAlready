@@ -31,7 +31,6 @@ import brg.com.doitalready.model.Task;
  */
 public class TaskRecyclerViewAdapter extends RecyclerView.Adapter<TaskRecyclerViewAdapter.ViewHolder> {
 
-    private List<Object> mTaskSet;
     private AdvancedHashMap taskSet;
 
     private enum ListItemType {
@@ -48,16 +47,8 @@ public class TaskRecyclerViewAdapter extends RecyclerView.Adapter<TaskRecyclerVi
 
     @Override
     public int getItemViewType(int position) {
-        Object listItem = null;
-        int lowIndex = 0;
-        for (Map.Entry<String, List<Object>> entry : taskSet.entrySet()) {
-            if (position >= lowIndex && position < lowIndex + entry.getValue().size()) {
-                listItem = entry.getValue().get(position-lowIndex);
-                break;
-            }
-            lowIndex += entry.getValue().size();
-        }
-        return listItem instanceof String ? ListItemType.SECTION_HEADER.ordinal() : ListItemType.SECTION_TASK.ordinal();
+        return taskSet.getItemAtIndex(position) instanceof String ?
+                ListItemType.SECTION_HEADER.ordinal() : ListItemType.SECTION_TASK.ordinal();
     }
 
     @Override
@@ -105,12 +96,13 @@ public class TaskRecyclerViewAdapter extends RecyclerView.Adapter<TaskRecyclerVi
     }
 
     public void removeItem(int position) {
-        mTaskSet.remove(position);
+        Task taskAtPosition = (Task) taskSet.getItemAtIndex(position);
+        taskSet.removeItem(taskAtPosition.getCompletedString(), taskAtPosition);
         notifyItemRemoved(position);
     }
 
     public void editItem(int position, String taskName) {
-        Task taskAtPosition = (Task) mTaskSet.get(position);
+        Task taskAtPosition = (Task) taskSet.getItemAtIndex(position);
         taskAtPosition.setName(taskName);
         notifyItemChanged(position);
         notifyDataSetChanged();
@@ -149,6 +141,7 @@ public class TaskRecyclerViewAdapter extends RecyclerView.Adapter<TaskRecyclerVi
                 mSectionTitle = (TextView) taskListItemLayout.findViewById(R.id.sectionTitle);
             } else if (listItemType == ListItemType.SECTION_TASK) {
                 mListItem = taskListItemLayout;
+                mTaskCategoryIcon = (ImageView) taskListItemLayout.findViewById(R.id.task_category_icon);
                 mTaskName = (TextView) taskListItemLayout.findViewById(R.id.task_name_card);
                 mCardFront = (CardView) taskListItemLayout.findViewById(R.id.card_view_front);
                 mCardBack = (CardView) taskListItemLayout.findViewById(R.id.card_view_back);
@@ -232,7 +225,7 @@ public class TaskRecyclerViewAdapter extends RecyclerView.Adapter<TaskRecyclerVi
             tasksDataSource.deleteTask(mTaskId);
             onListItemClick();
             if (mAdapter != null) {
-                mAdapter.removeItem(getPosition());
+                mAdapter.removeItem(getAdapterPosition());
             }
         }
 
